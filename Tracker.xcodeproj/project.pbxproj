@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		707BC74D2EB8A5410030DD12 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 707BC74C2EB8A53F0030DD12 /* TabBarController.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		707BC7162EB894830030DD12 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		707BC6FF2EB894820030DD12 /* Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		707BC7152EB894830030DD12 /* TrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		707BC71F2EB894830030DD12 /* TrackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		707BC74C2EB8A53F0030DD12 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -88,6 +93,7 @@
 		707BC6F62EB894820030DD12 = {
 			isa = PBXGroup;
 			children = (
+				707BC74C2EB8A53F0030DD12 /* TabBarController.swift */,
 				707BC7012EB894820030DD12 /* Tracker */,
 				707BC7182EB894830030DD12 /* TrackerTests */,
 				707BC7222EB894830030DD12 /* TrackerUITests */,
@@ -249,6 +255,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				707BC74D2EB8A5410030DD12 /* TabBarController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
