@@ -1,6 +1,6 @@
 import UIKit
 
-class CreateHabitViewController: UIViewController {
+final class CreateHabitViewController: UIViewController {
 
     // MARK: - UI Elements
     private let titleLabel = UILabel()
@@ -19,6 +19,16 @@ class CreateHabitViewController: UIViewController {
     private let categoryAreaView = UIView()
     private let scheduleAreaView = UIView()
 
+    // MARK: - Emoji and Color Selection
+    private let emojiLabel = UILabel()
+    private let emojiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let colorLabel = UILabel()
+    private let colorCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+
+    // MARK: - Scroll View
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
+
     // MARK: - Constraints for animation
     private var categoryLabelTopConstraint: NSLayoutConstraint?
     private var categoryValueLabelTopConstraint: NSLayoutConstraint?
@@ -33,6 +43,22 @@ class CreateHabitViewController: UIViewController {
         }
     }
     private var selectedDays: Set<Int> = []
+    private var selectedEmoji: String = "😪"
+    private var selectedColor: String = "Green"
+    private var isHeaderHidden = false
+
+    // MARK: - Data
+    private let emojis = [
+        "🙂", "😻", "🌺", "🐶", "❤️", "😱",
+        "😇", "😡", "🥶", "🤔", "🙌", "🍔",
+        "🥦", "🏓", "🥇", "🎸", "🏝️", "😪"
+    ]
+
+    private let colors = [
+        "Color1", "Color2", "Color3", "Color4", "Color5", "Color6",
+        "Color7", "Color8", "Color9", "Color10", "Color11", "Color12",
+        "Color13", "Color14", "Color15", "Color16", "Color17", "Color18"
+    ]
 
     // MARK: - Delegate
     weak var delegate: CreateHabitViewControllerDelegate?
@@ -48,9 +74,12 @@ class CreateHabitViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = UIColor(named: "WhiteDay")
 
+        setupScrollView()
         setupTitle()
         setupNameTextField()
         setupCategoryContainer()
+        setupEmojiSection()
+        setupColorSection()
         setupButtons()
         setupCharacterLimitLabel()
     }
@@ -61,7 +90,7 @@ class CreateHabitViewController: UIViewController {
         titleLabel.font = UIFont(name: "SFPro-Medium", size: 16) ?? UIFont.systemFont(ofSize: 16, weight: .medium)
         titleLabel.textColor = UIColor(named: "BlackDay")
         titleLabel.textAlignment = .center
-        view.addSubview(titleLabel)
+        contentView.addSubview(titleLabel)
     }
 
     private func setupNameTextField() {
@@ -73,6 +102,8 @@ class CreateHabitViewController: UIViewController {
         nameTextField.layer.cornerRadius = 16
         nameTextField.borderStyle = .none
         nameTextField.delegate = self
+        nameTextField.isUserInteractionEnabled = true
+        nameTextField.isEnabled = true
 
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
         nameTextField.leftView = paddingView
@@ -82,7 +113,7 @@ class CreateHabitViewController: UIViewController {
         nameTextField.rightView = rightPaddingView
         nameTextField.rightViewMode = .always
 
-        view.addSubview(nameTextField)
+        contentView.addSubview(nameTextField)
     }
 
     private func setupCategoryContainer() {
@@ -90,7 +121,7 @@ class CreateHabitViewController: UIViewController {
         categoryContainerView.backgroundColor = UIColor(named: "BackgroundDay")
         categoryContainerView.layer.cornerRadius = 16
         categoryContainerView.alpha = 1.0
-        view.addSubview(categoryContainerView)
+        contentView.addSubview(categoryContainerView)
 
         categoryLabel.translatesAutoresizingMaskIntoConstraints = false
         categoryLabel.text = "Категория"
@@ -158,7 +189,7 @@ class CreateHabitViewController: UIViewController {
         cancelButton.setTitle("Отменить", for: .normal)
         cancelButton.setTitleColor(UIColor(named: "Red"), for: .normal)
         cancelButton.titleLabel?.font = UIFont(name: "SFPro-Medium", size: 16) ?? UIFont.systemFont(ofSize: 16, weight: .medium)
-        cancelButton.backgroundColor = UIColor.clear
+        cancelButton.backgroundColor = UIColor(named: "WhiteDay")
         cancelButton.layer.cornerRadius = 16
         cancelButton.layer.borderWidth = 1
         cancelButton.layer.borderColor = UIColor(named: "Red")?.cgColor
@@ -176,6 +207,19 @@ class CreateHabitViewController: UIViewController {
         view.addSubview(createButton)
     }
 
+    private func setupScrollView() {
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.keyboardDismissMode = .interactive
+        scrollView.delaysContentTouches = false
+        scrollView.delegate = self
+        view.addSubview(scrollView)
+
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.isUserInteractionEnabled = true
+        scrollView.addSubview(contentView)
+    }
+
     private func setupCharacterLimitLabel() {
         characterLimitLabel.translatesAutoresizingMaskIntoConstraints = false
         characterLimitLabel.text = "Ограничение 38 символов"
@@ -183,7 +227,58 @@ class CreateHabitViewController: UIViewController {
         characterLimitLabel.textColor = UIColor(named: "Red")
         characterLimitLabel.textAlignment = .center
         characterLimitLabel.isHidden = true
-        view.addSubview(characterLimitLabel)
+        contentView.addSubview(characterLimitLabel)
+    }
+
+    private func setupEmojiSection() {
+
+        emojiLabel.translatesAutoresizingMaskIntoConstraints = false
+        emojiLabel.text = "Emoji"
+        emojiLabel.font = UIFont(name: "SFPro-Bold", size: 19) ?? UIFont.boldSystemFont(ofSize: 19)
+        emojiLabel.textColor = UIColor(named: "BlackDay")
+        emojiLabel.textAlignment = .left
+        contentView.addSubview(emojiLabel)
+
+        let emojiLayout = UICollectionViewFlowLayout()
+        emojiLayout.scrollDirection = .vertical
+        emojiLayout.minimumInteritemSpacing = 0
+        emojiLayout.minimumLineSpacing = 0
+        emojiLayout.itemSize = CGSize(width: 52, height: 52)
+
+        emojiCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        emojiCollectionView.backgroundColor = UIColor.clear
+        emojiCollectionView.setCollectionViewLayout(emojiLayout, animated: false)
+        emojiCollectionView.register(EmojiCollectionViewCell.self, forCellWithReuseIdentifier: EmojiCollectionViewCell.identifier)
+        emojiCollectionView.delegate = self
+        emojiCollectionView.dataSource = self
+        emojiCollectionView.isScrollEnabled = false
+        contentView.addSubview(emojiCollectionView)
+    }
+
+    private func setupColorSection() {
+
+        colorLabel.translatesAutoresizingMaskIntoConstraints = false
+        colorLabel.text = "Цвет"
+        colorLabel.font = UIFont(name: "SFPro-Bold", size: 19) ?? UIFont.boldSystemFont(ofSize: 19)
+        colorLabel.textColor = UIColor(named: "BlackDay")
+        colorLabel.textAlignment = .left
+        contentView.addSubview(colorLabel)
+
+        let colorLayout = UICollectionViewFlowLayout()
+        colorLayout.scrollDirection = .vertical
+        colorLayout.minimumInteritemSpacing = 0
+        colorLayout.minimumLineSpacing = 0
+        colorLayout.itemSize = CGSize(width: 52, height: 52)
+
+        colorCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        colorCollectionView.backgroundColor = UIColor.clear
+        colorCollectionView.setCollectionViewLayout(colorLayout, animated: false)
+        colorCollectionView.register(ColorCollectionViewCell.self, forCellWithReuseIdentifier: ColorCollectionViewCell.identifier)
+        colorCollectionView.delegate = self
+        colorCollectionView.dataSource = self
+        colorCollectionView.isScrollEnabled = true
+        colorCollectionView.showsVerticalScrollIndicator = false
+        contentView.addSubview(colorCollectionView)
     }
 
     private func setupConstraints() {
@@ -197,21 +292,49 @@ class CreateHabitViewController: UIViewController {
         scheduleValueLabel.isHidden = true
 
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 60),
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -100),
+
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -50),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
 
             nameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
-            nameTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            nameTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             nameTextField.widthAnchor.constraint(equalToConstant: 343),
             nameTextField.heightAnchor.constraint(equalToConstant: 75),
 
             characterLimitLabel.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 8),
-            characterLimitLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            characterLimitLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
 
             categoryContainerView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 20),
-            categoryContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            categoryContainerView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             categoryContainerView.widthAnchor.constraint(equalToConstant: 343),
             categoryContainerView.heightAnchor.constraint(equalToConstant: 150),
+
+            emojiLabel.topAnchor.constraint(equalTo: categoryContainerView.bottomAnchor, constant: 32),
+            emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
+
+            emojiCollectionView.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 31),
+            emojiCollectionView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            emojiCollectionView.widthAnchor.constraint(equalToConstant: 312),
+            emojiCollectionView.heightAnchor.constraint(equalToConstant: 156),
+
+            colorLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 40),
+            colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
+
+            colorCollectionView.topAnchor.constraint(equalTo: colorLabel.bottomAnchor, constant: 30),
+            colorCollectionView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            colorCollectionView.widthAnchor.constraint(equalToConstant: 312),
+            colorCollectionView.heightAnchor.constraint(equalToConstant: 200),
+            colorCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
 
             categoryLabelTopConstraint!,
             categoryLabel.leadingAnchor.constraint(equalTo: categoryContainerView.leadingAnchor, constant: 16),
@@ -252,12 +375,12 @@ class CreateHabitViewController: UIViewController {
             scheduleValueLabel.leadingAnchor.constraint(equalTo: categoryContainerView.leadingAnchor, constant: 16),
             scheduleValueLabel.trailingAnchor.constraint(equalTo: categoryContainerView.trailingAnchor, constant: -40),
 
-            cancelButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
+            cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             cancelButton.widthAnchor.constraint(equalToConstant: 166),
             cancelButton.heightAnchor.constraint(equalToConstant: 60),
 
-            createButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
+            createButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             createButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             createButton.widthAnchor.constraint(equalToConstant: 161),
             createButton.heightAnchor.constraint(equalToConstant: 60)
@@ -266,6 +389,8 @@ class CreateHabitViewController: UIViewController {
 
     private func setupKeyboardHandling() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        tapGesture.delegate = self
         view.addGestureRecognizer(tapGesture)
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -287,7 +412,9 @@ class CreateHabitViewController: UIViewController {
     private func validateForm() {
         let hasName = !(nameTextField.text?.isEmpty ?? true)
         let hasSchedule = !selectedDays.isEmpty
-        isFormValid = hasName && hasSchedule
+        let hasEmoji = !selectedEmoji.isEmpty
+        let hasColor = !selectedColor.isEmpty
+        isFormValid = hasName && hasSchedule && hasEmoji && hasColor
     }
 
     // MARK: - Actions
@@ -295,8 +422,6 @@ class CreateHabitViewController: UIViewController {
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
-
-
 
     @objc private func keyboardWillShow(notification: NSNotification) {
     }
@@ -340,8 +465,8 @@ class CreateHabitViewController: UIViewController {
         @objc private func createButtonTapped() {
         let tracker = Tracker(
             name: nameTextField.text ?? "",
-            color: "Green",
-            emoji: "😪",
+            color: selectedColor,
+            emoji: selectedEmoji,
             schedule: Array(selectedDays)
         )
 
@@ -385,8 +510,6 @@ class CreateHabitViewController: UIViewController {
     }
 }
 
-
-
 // MARK: - UITextFieldDelegate
 
 extension CreateHabitViewController: UITextFieldDelegate {
@@ -410,5 +533,83 @@ extension CreateHabitViewController: UITextFieldDelegate {
 
     func textFieldDidEndEditing(_ textField: UITextField) {
         validateForm()
+    }
+}
+
+// MARK: - UICollectionViewDataSource
+
+extension CreateHabitViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if collectionView == emojiCollectionView {
+            return emojis.count
+        } else if collectionView == colorCollectionView {
+            return colors.count
+        }
+        return 0
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if collectionView == emojiCollectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmojiCollectionViewCell.identifier, for: indexPath) as! EmojiCollectionViewCell
+            let emoji = emojis[indexPath.item]
+            let isSelected = emoji == selectedEmoji
+            cell.configure(with: emoji, isSelected: isSelected)
+            return cell
+        } else if collectionView == colorCollectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ColorCollectionViewCell.identifier, for: indexPath) as! ColorCollectionViewCell
+            let color = colors[indexPath.item]
+            let isSelected = color == selectedColor
+            cell.configure(with: color, isSelected: isSelected)
+            return cell
+        }
+        return UICollectionViewCell()
+    }
+}
+
+// MARK: - UICollectionViewDelegate
+
+extension CreateHabitViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if collectionView == emojiCollectionView {
+            selectedEmoji = emojis[indexPath.item]
+            emojiCollectionView.reloadData()
+        } else if collectionView == colorCollectionView {
+            selectedColor = colors[indexPath.item]
+            colorCollectionView.reloadData()
+        }
+    }
+}
+
+// MARK: - UIGestureRecognizerDelegate
+
+extension CreateHabitViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        let location = touch.location(in: view)
+        let textFieldFrame = nameTextField.convert(nameTextField.bounds, to: view)
+
+        if textFieldFrame.contains(location) {
+            return false
+        }
+
+        return true
+    }
+}
+
+// MARK: - UIScrollViewDelegate
+
+extension CreateHabitViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let scrollOffset = scrollView.contentOffset.y
+        let shouldHideHeader = scrollOffset > 50
+
+        if shouldHideHeader != isHeaderHidden {
+            isHeaderHidden = shouldHideHeader
+
+            UIView.animate(withDuration: 0.3, animations: {
+                self.titleLabel.alpha = shouldHideHeader ? 0 : 1
+                self.nameTextField.alpha = shouldHideHeader ? 0 : 1
+                self.characterLimitLabel.alpha = shouldHideHeader ? 0 : 1
+            })
+        }
     }
 }
