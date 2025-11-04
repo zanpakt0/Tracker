@@ -13,6 +13,7 @@ extension TrackerCoreData {
     func toTracker() -> Tracker {
         let scheduleArray = (self.schedule as? [Int]) ?? []
         return Tracker(
+            id: self.id ?? UUID(),
             name: self.name ?? "",
             color: self.color ?? "Green",
             emoji: self.emoji ?? "😪",

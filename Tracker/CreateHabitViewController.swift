@@ -241,9 +241,10 @@ final class CreateHabitViewController: UIViewController {
 
         let emojiLayout = UICollectionViewFlowLayout()
         emojiLayout.scrollDirection = .vertical
-        emojiLayout.minimumInteritemSpacing = 0
+        emojiLayout.minimumInteritemSpacing = 5
         emojiLayout.minimumLineSpacing = 0
         emojiLayout.itemSize = CGSize(width: 52, height: 52)
+        emojiLayout.sectionInset = UIEdgeInsets(top: 24, left: 18, bottom: 24, right: 19)
 
         emojiCollectionView.translatesAutoresizingMaskIntoConstraints = false
         emojiCollectionView.backgroundColor = UIColor.clear
@@ -266,9 +267,10 @@ final class CreateHabitViewController: UIViewController {
 
         let colorLayout = UICollectionViewFlowLayout()
         colorLayout.scrollDirection = .vertical
-        colorLayout.minimumInteritemSpacing = 0
+        colorLayout.minimumInteritemSpacing = 5
         colorLayout.minimumLineSpacing = 0
         colorLayout.itemSize = CGSize(width: 52, height: 52)
+        colorLayout.sectionInset = UIEdgeInsets(top: 24, left: 18, bottom: 24, right: 19)
 
         colorCollectionView.translatesAutoresizingMaskIntoConstraints = false
         colorCollectionView.backgroundColor = UIColor.clear
@@ -295,46 +297,51 @@ final class CreateHabitViewController: UIViewController {
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -100),
+            scrollView.bottomAnchor.constraint(equalTo: cancelButton.topAnchor, constant: -16),
 
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -50),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
-            nameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
-            nameTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            nameTextField.widthAnchor.constraint(equalToConstant: 343),
+            nameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
+            nameTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            nameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             nameTextField.heightAnchor.constraint(equalToConstant: 75),
 
             characterLimitLabel.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 8),
             characterLimitLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
 
-            categoryContainerView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 20),
-            categoryContainerView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            categoryContainerView.widthAnchor.constraint(equalToConstant: 343),
+            categoryContainerView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 24),
+            categoryContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            categoryContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             categoryContainerView.heightAnchor.constraint(equalToConstant: 150),
 
             emojiLabel.topAnchor.constraint(equalTo: categoryContainerView.bottomAnchor, constant: 32),
             emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
+            emojiLabel.widthAnchor.constraint(equalToConstant: 52),
+            emojiLabel.heightAnchor.constraint(equalToConstant: 18),
 
-            emojiCollectionView.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 31),
-            emojiCollectionView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            emojiCollectionView.widthAnchor.constraint(equalToConstant: 312),
-            emojiCollectionView.heightAnchor.constraint(equalToConstant: 156),
+            emojiCollectionView.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 0),
+            emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            emojiCollectionView.heightAnchor.constraint(equalToConstant: 204),
 
-            colorLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 40),
+            colorLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 16),
             colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
+            colorLabel.widthAnchor.constraint(equalToConstant: 52),
+            colorLabel.heightAnchor.constraint(equalToConstant: 18),
 
-            colorCollectionView.topAnchor.constraint(equalTo: colorLabel.bottomAnchor, constant: 30),
-            colorCollectionView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            colorCollectionView.widthAnchor.constraint(equalToConstant: 312),
-            colorCollectionView.heightAnchor.constraint(equalToConstant: 200),
-            colorCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
+            colorCollectionView.topAnchor.constraint(equalTo: colorLabel.bottomAnchor, constant: 0),
+            colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            colorCollectionView.heightAnchor.constraint(equalToConstant: 204),
+            colorCollectionView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor),
 
             categoryLabelTopConstraint!,
             categoryLabel.leadingAnchor.constraint(equalTo: categoryContainerView.leadingAnchor, constant: 16),
