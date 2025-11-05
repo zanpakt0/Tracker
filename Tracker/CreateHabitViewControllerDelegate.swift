@@ -8,5 +8,5 @@
 import Foundation
 
 protocol CreateHabitViewControllerDelegate: AnyObject {
-    func didCreateTracker(_ tracker: Tracker)
-}
+    func didCreateTracker(_ tracker: Tracker, category: TrackerCategory)
+} 

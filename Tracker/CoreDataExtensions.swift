@@ -1,8 +1,8 @@
 //
-//  TrackerCoreData.swift
+//  CoreDataExtensions.swift
 //  Tracker
 //
-//  Created by Zhukov Konstantin on 04.11.2025.
+//  Created by Zhukov Konstantin on 05.11.2025.
 //
 
 import CoreData

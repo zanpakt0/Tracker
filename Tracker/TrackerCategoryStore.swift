@@ -11,6 +11,7 @@ import CoreData
 protocol TrackerCategoryStoreProtocol {
     func createCategory(title: String) -> TrackerCategory
     func fetchCategories() -> [TrackerCategory]
+    func updateCategoryTitle(_ category: TrackerCategory, newTitle: String)
     func deleteCategory(_ category: TrackerCategory)
     func getCategory(by title: String) -> TrackerCategory?
     func startObservingChanges(onUpdate: @escaping ([TrackerCategory]) -> Void)
@@ -30,6 +31,21 @@ class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
     func fetchCategories() -> [TrackerCategory] {
         let coreDataCategories = coreDataManager.fetchCategories()
         return coreDataCategories.map { $0.toTrackerCategory() }
+    }
+
+    func updateCategoryTitle(_ category: TrackerCategory, newTitle: String) {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "title == %@", category.title)
+
+        do {
+            let coreDataCategories = try coreDataManager.context.fetch(request)
+            if let coreDataCategory = coreDataCategories.first {
+                coreDataCategory.title = newTitle
+                coreDataManager.saveContext()
+            }
+        } catch {
+            print("Error finding category to update: \(error)")
+        }
     }
 
     func deleteCategory(_ category: TrackerCategory) {
