@@ -14,6 +14,14 @@ struct Tracker: Codable {
     let emoji: String
     let schedule: [Int]
 
+    init(id: UUID, name: String, color: String, emoji: String, schedule: [Int]) {
+        self.id = id
+        self.name = name
+        self.color = color
+        self.emoji = emoji
+        self.schedule = schedule
+    }
+
     init(name: String, color: String, emoji: String, schedule: [Int]) {
         self.id = UUID()
         self.name = name

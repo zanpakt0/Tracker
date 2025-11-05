@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TrackersViewController: UIViewController {
+final class TrackersViewController: UIViewController {
 
     // MARK: - UI Elements
     private let titleLabel = UILabel()
@@ -23,9 +23,12 @@ class TrackersViewController: UIViewController {
 
     // MARK: - Data
     private var categories: [TrackerCategory] = []
-    private var completedTrackers: [TrackerRecord] = []
     private var completedTrackerIds: Set<UUID> = []
     var currentDate: Date = Date()
+
+    private let trackerStore = TrackerStore()
+    private let categoryStore = TrackerCategoryStore()
+    private let recordStore = TrackerRecordStore()
 
     // MARK: - Computed Properties
     private var visibleCategories: [TrackerCategory] {
@@ -49,20 +52,23 @@ class TrackersViewController: UIViewController {
     }
 
     private func getCompletedCount(for tracker: Tracker) -> Int {
-        return completedTrackers.filter { $0.trackerId == tracker.id }.count
+        return recordStore.getCompletedCount(for: tracker.id)
     }
 
     private func isTrackerCompleted(for tracker: Tracker) -> Bool {
-        return completedTrackers.contains { record in
-            record.trackerId == tracker.id && Calendar.current.isDate(record.date, inSameDayAs: currentDate)
-        }
+        return recordStore.isTrackerCompleted(trackerId: tracker.id, date: currentDate)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupUI()
-        loadData()
+        startObservingDataChanges()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        stopObservingDataChanges()
     }
 
     private func setupUI() {
@@ -245,42 +251,33 @@ class TrackersViewController: UIViewController {
     }
 
     // MARK: - Data Management
-    private func loadData() {
-        if let data = UserDefaults.standard.data(forKey: "categories"),
-           let savedCategories = try? JSONDecoder().decode([TrackerCategory].self, from: data) {
-            categories = savedCategories
+    private func startObservingDataChanges() {
+        categoryStore.startObservingChanges { [weak self] categories in
+            DispatchQueue.main.async {
+                self?.categories = categories
+                self?.updateUI()
+            }
         }
-        if let data = UserDefaults.standard.data(forKey: "completedTrackers"),
-           let savedCompletedTrackers = try? JSONDecoder().decode([TrackerRecord].self, from: data) {
-            completedTrackers = savedCompletedTrackers
-            completedTrackerIds = Set(completedTrackers.map(\.trackerId))
-        }
-        updateUI()
     }
 
-    private func saveData() {
-        if let data = try? JSONEncoder().encode(categories) {
-            UserDefaults.standard.set(data, forKey: "categories")
-        }
-        if let data = try? JSONEncoder().encode(completedTrackers) {
-            UserDefaults.standard.set(data, forKey: "completedTrackers")
-        }
+    private func stopObservingDataChanges() {
+        categoryStore.stopObservingChanges()
+    }
+
+    private func loadData() {
+        categories = categoryStore.fetchCategories()
+        updateUI()
     }
 
     private func addTracker(_ tracker: Tracker) {
-
-        if let existingCategoryIndex = categories.firstIndex(where: { $0.title == "Важное" }) {
-
-            let existingCategory = categories[existingCategoryIndex]
-            let updatedCategory = TrackerCategory(title: existingCategory.title, trackers: existingCategory.trackers + [tracker])
-            categories[existingCategoryIndex] = updatedCategory
-        } else {
-
-            let category = TrackerCategory(title: "Важное", trackers: [tracker])
-            categories.append(category)
-        }
-        saveData()
-        updateUI()
+        _ = trackerStore.createTracker(
+            name: tracker.name,
+            color: tracker.color,
+            emoji: tracker.emoji,
+            schedule: tracker.schedule,
+            categoryTitle: "Важное"
+        )
+        loadData()
     }
 
     func updateUI() {
@@ -306,23 +303,7 @@ class TrackersViewController: UIViewController {
             return
         }
 
-        let isAlreadyCompleted = completedTrackers.contains { record in
-            record.trackerId == tracker.id && Calendar.current.isDate(record.date, inSameDayAs: currentDate)
-        }
-
-        if isAlreadyCompleted {
-
-            completedTrackers.removeAll { record in
-                record.trackerId == tracker.id && Calendar.current.isDate(record.date, inSameDayAs: currentDate)
-            }
-        } else {
-            let record = TrackerRecord(trackerId: tracker.id, date: currentDate)
-            completedTrackers.append(record)
-        }
-
-        completedTrackerIds = Set(completedTrackers.map(\.trackerId))
-
-        saveData()
+        recordStore.toggleTrackerCompletion(trackerId: tracker.id, date: currentDate)
         updateUI()
     }
 }
