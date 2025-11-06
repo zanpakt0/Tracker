@@ -44,7 +44,7 @@ final class CreateHabitViewController: UIViewController {
     }
     private var selectedDays: Set<Int> = []
     private var selectedEmoji: String = "😪"
-    private var selectedColor: String = "Green"
+    private var selectedColor: String = "Color18"
     private var selectedCategory: TrackerCategory?
     private var isHeaderHidden = false
 

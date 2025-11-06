@@ -183,7 +183,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
 
         daysLabel.text = getDayText(for: completedCount)
 
-        containerView.backgroundColor = UIColor(named: tracker.color) ?? UIColor(named: "Green")
+        containerView.backgroundColor = UIColor(named: tracker.color) ?? UIColor(named: "Color18")
 
         updateCompletionButton(isCompleted: isCompleted)
     }
@@ -198,7 +198,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             self.tracker = firstTracker
             emojiLabel.text = firstTracker.emoji
             nameLabel.text = firstTracker.name
-            containerView.backgroundColor = UIColor(named: firstTracker.color) ?? UIColor(named: "Green")
+            containerView.backgroundColor = UIColor(named: firstTracker.color) ?? UIColor(named: "Color18")
         }
 
         daysLabel.text = getDayText(for: completedCount)
@@ -208,7 +208,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
 
     private func updateCompletionButton(isCompleted: Bool) {
 
-        let cellColor = UIColor(named: tracker?.color ?? "Green") ?? UIColor.systemGreen
+        let cellColor = UIColor(named: tracker?.color ?? "Color18") ?? UIColor.systemGreen
 
         if isCompleted {
 

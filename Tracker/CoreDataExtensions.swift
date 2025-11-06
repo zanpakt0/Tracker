@@ -24,7 +24,7 @@ extension TrackerCoreData {
         return Tracker(
             id: self.id ?? UUID(),
             name: self.name ?? "",
-            color: self.color ?? "Green",
+            color: self.color ?? "Color18",
             emoji: self.emoji ?? "😪",
             schedule: scheduleArray
         )
