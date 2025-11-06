@@ -18,11 +18,8 @@ final class CoreDataManager {
         let container = NSPersistentContainer(name: "Tracker")
         container.loadPersistentStores { _, error in
             if let error = error as NSError? {
-                // Handle Core Data migration errors
                 if error.code == 134140 {
-                    // Delete the store and recreate it
                     self.deletePersistentStore()
-                    // Try to load again
                     container.loadPersistentStores { _, secondError in
                         if let secondError = secondError as NSError? {
                             assertionFailure("Unresolved error after store deletion: \(secondError), \(secondError.userInfo)")
@@ -41,7 +38,6 @@ final class CoreDataManager {
 
         do {
             try FileManager.default.removeItem(at: storeURL)
-            print("Successfully deleted persistent store at: \(storeURL)")
         } catch {
             print("Error deleting persistent store: \(error)")
         }
@@ -202,7 +198,6 @@ final class CoreDataManager {
                 print("Error removing record: \(error)")
             }
         } else {
-
             _ = createRecord(trackerId: trackerId, date: date)
         }
 

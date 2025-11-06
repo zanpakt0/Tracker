@@ -136,7 +136,7 @@ final class TrackersViewController: UIViewController {
 
     private func setupCategoryHeader() {
         categoryHeaderLabel.translatesAutoresizingMaskIntoConstraints = false
-        categoryHeaderLabel.text = "Важное"
+        categoryHeaderLabel.text = ""
         categoryHeaderLabel.font = UIFont(name: "SFPro-Bold", size: 19) ?? UIFont.boldSystemFont(ofSize: 19)
         categoryHeaderLabel.textColor = UIColor(named: "BlackDay")
         categoryHeaderLabel.isHidden = true
@@ -231,6 +231,7 @@ final class TrackersViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: TrackerCollectionViewCell.identifier)
+        collectionView.register(CategoryHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: CategoryHeaderView.identifier)
 
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -269,27 +270,33 @@ final class TrackersViewController: UIViewController {
         updateUI()
     }
 
-    private func addTracker(_ tracker: Tracker) {
+    private func addTracker(_ tracker: Tracker, category: TrackerCategory) {
         _ = trackerStore.createTracker(
             name: tracker.name,
             color: tracker.color,
             emoji: tracker.emoji,
             schedule: tracker.schedule,
-            categoryTitle: "Важное"
+            categoryTitle: category.title
         )
         loadData()
+    }
+
+        private func updateCategoryHeader() {
+        if let firstCategory = visibleCategories.first {
+            categoryHeaderLabel.text = firstCategory.title
+        }
     }
 
     func updateUI() {
         collectionView.reloadData()
         collectionView.collectionViewLayout.invalidateLayout()
 
-        let isEmpty = visibleTrackers.isEmpty
+        let isEmpty = visibleCategories.isEmpty
 
         emptyStateImageView.isHidden = !isEmpty
         emptyStateLabel.isHidden = !isEmpty
         collectionView.isHidden = isEmpty
-        categoryHeaderLabel.isHidden = isEmpty
+        categoryHeaderLabel.isHidden = true
     }
 
     // MARK: - Tracker Management
@@ -310,13 +317,19 @@ final class TrackersViewController: UIViewController {
 
 // MARK: - UICollectionViewDataSource
 extension TrackersViewController: UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return visibleCategories.count
+    }
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return visibleTrackers.count
+        let category = visibleCategories[section]
+        return category.trackers.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TrackerCollectionViewCell.identifier, for: indexPath) as! TrackerCollectionViewCell
-        let tracker = visibleTrackers[indexPath.item]
+        let category = visibleCategories[indexPath.section]
+        let tracker = category.trackers[indexPath.item]
         let completedCount = getCompletedCount(for: tracker)
         let isCompleted = isTrackerCompleted(for: tracker)
 
@@ -327,6 +340,16 @@ extension TrackersViewController: UICollectionViewDataSource {
         cell.configure(with: tracker, selectedDate: currentDate, isCompleted: isCompleted, completedCount: completedCount)
 
         return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        if kind == UICollectionView.elementKindSectionHeader {
+            let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "CategoryHeader", for: indexPath) as! CategoryHeaderView
+            let category = visibleCategories[indexPath.section]
+            headerView.configure(with: category.title)
+            return headerView
+        }
+        return UICollectionReusableView()
     }
 }
 
@@ -352,11 +375,15 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             return CGSize(width: cellWidth, height: 132)
         }
     }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: collectionView.bounds.width, height: 30)
+    }
 }
 
 // MARK: - CreateHabitViewControllerDelegate
 extension TrackersViewController: CreateHabitViewControllerDelegate {
-    func didCreateTracker(_ tracker: Tracker) {
-        addTracker(tracker)
+    func didCreateTracker(_ tracker: Tracker, category: TrackerCategory) {
+        addTracker(tracker, category: category)
     }
 }
