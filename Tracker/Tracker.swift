@@ -36,4 +36,4 @@ struct Tracker: Codable {
         let adjustedWeekday = (weekday + 5) % 7
         return schedule.contains(adjustedWeekday)
     }
-}
+} 

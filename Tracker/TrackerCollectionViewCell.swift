@@ -36,6 +36,10 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         contentView.backgroundColor = UIColor.clear
         contentView.isUserInteractionEnabled = true
 
+        // Добавляем контекстное меню для долгого нажатия на цветную часть
+        let contextMenuInteraction = UIContextMenuInteraction(delegate: self)
+        containerView.addInteraction(contextMenuInteraction)
+
         headerLabel.translatesAutoresizingMaskIntoConstraints = false
         headerLabel.font = UIFont(name: "SFPro-Bold", size: 19) ?? UIFont.boldSystemFont(ofSize: 19)
         headerLabel.textColor = UIColor(named: "BlackDay")
@@ -123,8 +127,37 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         guard let tracker = tracker else {
             return
         }
+
+        // Проверяем, не пытается ли пользователь выполнить привычку заранее
+        let today = Calendar.current.startOfDay(for: Date())
+        let selectedDay = Calendar.current.startOfDay(for: selectedDate)
+
+        if selectedDay > today {
+            // Показываем анимацию "запрета" для будущих дат
+            showDenialAnimation()
+            return
+        }
+
+        AnalyticsManager.shared.trackButtonClick(screen: "Main", item: "track")
+
         onCompletionToggled?(tracker)
     }
+
+    // MARK: - Animation
+    private func showDenialAnimation() {
+        // Анимация покачивания влево-вправо
+        let shakeAnimation = CAKeyframeAnimation(keyPath: "transform.translation.x")
+        shakeAnimation.timingFunction = CAMediaTimingFunction(name: .linear)
+        shakeAnimation.duration = 0.5
+        shakeAnimation.values = [-10, 10, -8, 8, -5, 5, 0]
+
+        completionButton.layer.add(shakeAnimation, forKey: "shake")
+
+        // Небольшая вибрация (если доступна)
+        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+        impactFeedback.impactOccurred()
+    }
+
 
     func configure(with tracker: Tracker, selectedDate: Date, isCompleted: Bool, completedCount: Int) {
         self.tracker = tracker
@@ -148,8 +181,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             ]
         )
 
-        let dayText = getDayText(for: completedCount)
-        daysLabel.text = "\(completedCount) \(dayText)"
+        daysLabel.text = getDayText(for: completedCount)
 
         containerView.backgroundColor = UIColor(named: tracker.color) ?? UIColor(named: "Green")
 
@@ -169,8 +201,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             containerView.backgroundColor = UIColor(named: firstTracker.color) ?? UIColor(named: "Green")
         }
 
-        let dayText = getDayText(for: completedCount)
-        daysLabel.text = "\(completedCount) \(dayText)"
+        daysLabel.text = getDayText(for: completedCount)
 
         updateCompletionButton(isCompleted: isCompleted)
     }
@@ -183,7 +214,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
 
             completionButton.setImage(nil, for: .normal)
             completionButton.setTitle("✓", for: .normal)
-            completionButton.setTitleColor(UIColor.white, for: .normal)
+            completionButton.setTitleColor(UIColor(named: "Whitenight"), for: .normal)
             completionButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
             completionButton.backgroundColor = cellColor.withAlphaComponent(0.3)
             completionButton.alpha = 1.0
@@ -191,7 +222,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
 
             completionButton.setImage(nil, for: .normal)
             completionButton.setTitle("+", for: .normal)
-            completionButton.setTitleColor(UIColor.white, for: .normal)
+            completionButton.setTitleColor(UIColor(named: "Whitenight"), for: .normal)
             completionButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .light)
             completionButton.backgroundColor = cellColor
             completionButton.alpha = 1.0
@@ -204,20 +235,49 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     }
 
     private func getDayText(for count: Int) -> String {
-        let lastDigit = count % 10
-        let lastTwoDigits = count % 100
+        let format = NSLocalizedString("days.count", comment: "N дней (плюрализация)")
+        return String.localizedStringWithFormat(format, count)
+    }
+}
 
-        if lastTwoDigits >= 11 && lastTwoDigits <= 19 {
-            return "дней"
-        }
+// MARK: - UIContextMenuInteractionDelegate
+extension TrackerCollectionViewCell: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        guard let tracker = tracker else { return nil }
 
-        switch lastDigit {
-        case 1:
-            return "день"
-        case 2, 3, 4:
-            return "дня"
-        default:
-            return "дней"
-        }
+        return UIContextMenuConfiguration(
+            identifier: tracker.id as NSCopying,
+            previewProvider: { [weak self] in
+                // Возвращаем nil для использования стандартного preview
+                return nil
+            },
+            actionProvider: { [weak self] _ in
+                // Создаем действия меню
+                guard let self = self, let tracker = self.tracker else { return nil }
+
+                let editAction = UIAction(
+                    title: NSLocalizedString("action.edit", comment: "Редактировать")
+                ) { _ in
+                    // Действие будет обработано в TrackersViewController
+                    NotificationCenter.default.post(
+                        name: NSNotification.Name("TrackerEditRequested"),
+                        object: tracker
+                    )
+                }
+
+                let deleteAction = UIAction(
+                    title: NSLocalizedString("action.delete", comment: "Удалить"),
+                    attributes: .destructive
+                ) { _ in
+                    // Действие будет обработано в TrackersViewController
+                    NotificationCenter.default.post(
+                        name: NSNotification.Name("TrackerDeleteRequested"),
+                        object: tracker
+                    )
+                }
+
+                return UIMenu(children: [editAction, deleteAction])
+            }
+        )
     }
 }

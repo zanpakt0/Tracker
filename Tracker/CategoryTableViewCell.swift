@@ -34,7 +34,7 @@ final class CategoryTableViewCell: UITableViewCell {
         selectionStyle = .none
 
         containerView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.backgroundColor = UIColor(red: 0.90, green: 0.91, blue: 0.92, alpha: 0.30)
+        containerView.backgroundColor = UIColor(named: "BackgroundDay")
         containerView.layer.cornerRadius = 16
         contentView.addSubview(containerView)
 

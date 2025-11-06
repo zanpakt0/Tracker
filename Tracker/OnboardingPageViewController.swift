@@ -98,7 +98,7 @@ final class OnboardingPageViewController: UIViewController {
 
     private func setupActionButton() {
         actionButton.translatesAutoresizingMaskIntoConstraints = false
-        actionButton.setTitle("Вот это технологии!", for: .normal)
+        actionButton.setTitle(NSLocalizedString("onboarding.action", comment: "Кнопка онбординга"), for: .normal)
         actionButton.setTitleColor(.white, for: .normal)
         actionButton.titleLabel?.font = UIFont(name: "SFPro-Medium", size: 16) ?? UIFont.systemFont(ofSize: 16, weight: .medium)
         actionButton.backgroundColor = UIColor(named: "BlackDay")

@@ -11,6 +11,7 @@ import CoreData
 protocol TrackerStoreProtocol {
     func createTracker(name: String, color: String, emoji: String, schedule: [Int], categoryTitle: String) -> Tracker
     func fetchTrackers() -> [Tracker]
+    func updateTracker(_ tracker: Tracker, newName: String, newEmoji: String, newColor: String, newSchedule: [Int], newCategoryTitle: String?)
     func deleteTracker(_ tracker: Tracker)
     func getOrCreateCategory(title: String) -> TrackerCategory
     func fetchCategories() -> [TrackerCategory]
@@ -37,6 +38,28 @@ class TrackerStore: NSObject, TrackerStoreProtocol {
     func fetchTrackers() -> [Tracker] {
         let coreDataTrackers = coreDataManager.fetchTrackers()
         return coreDataTrackers.map { $0.toTracker() }
+    }
+
+    func updateTracker(_ tracker: Tracker, newName: String, newEmoji: String, newColor: String, newSchedule: [Int], newCategoryTitle: String?) {
+        let request = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+
+        do {
+            let coreDataTrackers = try coreDataManager.context.fetch(request)
+            if let coreDataTracker = coreDataTrackers.first {
+                coreDataTracker.name = newName
+                coreDataTracker.emoji = newEmoji
+                coreDataTracker.color = newColor
+                coreDataTracker.schedule = newSchedule as NSArray
+                if let newCategoryTitle = newCategoryTitle, !newCategoryTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    let category = coreDataManager.getOrCreateCategory(title: newCategoryTitle)
+                    coreDataTracker.category = category
+                }
+                coreDataManager.saveContext()
+            }
+        } catch {
+            print("Error finding tracker to update: \(error)")
+        }
     }
 
     func deleteTracker(_ tracker: Tracker) {

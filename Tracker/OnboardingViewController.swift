@@ -27,13 +27,13 @@ final class OnboardingViewController: UIViewController {
     private func setupPages() {
         let page1 = OnboardingPageViewController(
             pageIndex: 0,
-            titleText: "Отслеживайте только то, что хотите",
+            titleText: NSLocalizedString("onboarding.title.0", comment: "Онбординг 1"),
             backgroundImageName: "Onboarding1"
         )
 
         let page2 = OnboardingPageViewController(
             pageIndex: 1,
-            titleText: "Даже если это не литры воды и йога",
+            titleText: NSLocalizedString("onboarding.title.1", comment: "Онбординг 2"),
             backgroundImageName: "Onboarding2"
         )
 
