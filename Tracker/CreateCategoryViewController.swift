@@ -48,7 +48,7 @@ final class CreateCategoryViewController: UIViewController {
 
     // MARK: - Setup
     private func setupUI() {
-        view.backgroundColor = UIColor.white
+        view.backgroundColor = UIColor(named: "WhiteDay")
 
         setupTitle()
         setupCategoryTextField()
@@ -57,7 +57,7 @@ final class CreateCategoryViewController: UIViewController {
 
     private func setupTitle() {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.text = "Новая категория"
+        titleLabel.text = NSLocalizedString("category.new.title", comment: "Новая категория")
         titleLabel.font = UIFont(name: "SFPro-Medium", size: 16) ?? UIFont.systemFont(ofSize: 16, weight: .medium)
         titleLabel.textColor = UIColor(named: "BlackDay")
         titleLabel.textAlignment = .center
@@ -72,10 +72,10 @@ final class CreateCategoryViewController: UIViewController {
 
     private func setupCategoryTextField() {
         categoryTextField.translatesAutoresizingMaskIntoConstraints = false
-        categoryTextField.placeholder = "Введите название категории"
+        categoryTextField.placeholder = NSLocalizedString("category.placeholder", comment: "Плейсхолдер категории")
         categoryTextField.font = UIFont(name: "SFPro-Regular", size: 17) ?? UIFont.systemFont(ofSize: 17)
         categoryTextField.textColor = UIColor(named: "BlackDay")
-        categoryTextField.backgroundColor = UIColor(red: 0.90, green: 0.91, blue: 0.92, alpha: 0.30)
+        categoryTextField.backgroundColor = UIColor(named: "BackgroundDay")
         categoryTextField.layer.cornerRadius = 16
         categoryTextField.borderStyle = .none
         categoryTextField.delegate = self
@@ -122,8 +122,8 @@ final class CreateCategoryViewController: UIViewController {
 
     private func setupDoneButton() {
         doneButton.translatesAutoresizingMaskIntoConstraints = false
-        doneButton.setTitle("Готово", for: .normal)
-        doneButton.setTitleColor(UIColor.white, for: .normal)
+        doneButton.setTitle(NSLocalizedString("button.done", comment: "Готово"), for: .normal)
+        doneButton.setTitleColor(UIColor(named: "Whitenight"), for: .normal)
         doneButton.titleLabel?.font = UIFont(name: "SFPro-Medium", size: 16) ?? UIFont.systemFont(ofSize: 16, weight: .medium)
         doneButton.backgroundColor = UIColor(named: "Gray")
         doneButton.layer.cornerRadius = 16
@@ -153,9 +153,11 @@ final class CreateCategoryViewController: UIViewController {
     private func updateDoneButtonState() {
         if isFormValid {
             doneButton.backgroundColor = UIColor(named: "BlackDay")
+            doneButton.setTitleColor(UIColor(named: "Whitenight"), for: .normal)
             doneButton.isEnabled = true
         } else {
             doneButton.backgroundColor = UIColor(named: "Gray")
+            doneButton.setTitleColor(UIColor(named: "Whitenight"), for: .normal)
             doneButton.isEnabled = false
         }
     }

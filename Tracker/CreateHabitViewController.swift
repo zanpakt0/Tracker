@@ -44,7 +44,7 @@ final class CreateHabitViewController: UIViewController {
     }
     private var selectedDays: Set<Int> = []
     private var selectedEmoji: String = "😪"
-    private var selectedColor: String = "Green"
+    private var selectedColor: String = "Color18"
     private var selectedCategory: TrackerCategory?
     private var isHeaderHidden = false
 
@@ -199,9 +199,9 @@ final class CreateHabitViewController: UIViewController {
 
         createButton.translatesAutoresizingMaskIntoConstraints = false
         createButton.setTitle("Создать", for: .normal)
-        createButton.setTitleColor(UIColor(named: "WhiteDay"), for: .normal)
+        createButton.setTitleColor(UIColor.white, for: .normal)
         createButton.titleLabel?.font = UIFont(name: "SFPro-Medium", size: 16) ?? UIFont.systemFont(ofSize: 16, weight: .medium)
-        createButton.backgroundColor = UIColor(named: "Gray")
+        createButton.backgroundColor = UIColor.systemGray
         createButton.layer.cornerRadius = 16
         createButton.isEnabled = false
         createButton.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
@@ -410,9 +410,11 @@ final class CreateHabitViewController: UIViewController {
     private func updateCreateButtonState() {
         if isFormValid {
             createButton.backgroundColor = UIColor(named: "BlackDay")
+            createButton.setTitleColor(UIColor(named: "Whitenight"), for: .normal)
             createButton.isEnabled = true
         } else {
-            createButton.backgroundColor = UIColor(named: "Gray")
+            createButton.backgroundColor = UIColor.systemGray
+            createButton.setTitleColor(UIColor.white, for: .normal)
             createButton.isEnabled = false
         }
     }

@@ -17,13 +17,13 @@ final class ScheduleViewController: UIViewController {
 
     // MARK: - Data
     private let daysOfWeek = [
-        "Понедельник",
-        "Вторник",
-        "Среда",
-        "Четверг",
-        "Пятница",
-        "Суббота",
-        "Воскресенье"
+        NSLocalizedString("weekday.1", comment: "Понедельник"),
+        NSLocalizedString("weekday.2", comment: "Вторник"),
+        NSLocalizedString("weekday.3", comment: "Среда"),
+        NSLocalizedString("weekday.4", comment: "Четверг"),
+        NSLocalizedString("weekday.5", comment: "Пятница"),
+        NSLocalizedString("weekday.6", comment: "Суббота"),
+        NSLocalizedString("weekday.7", comment: "Воскресенье")
     ]
 
     private var selectedDays: Set<Int> = []
@@ -35,11 +35,12 @@ final class ScheduleViewController: UIViewController {
         super.viewDidLoad()
 
         setupUI()
+        updateDoneButtonState()
     }
 
     private func setupUI() {
 
-        view.backgroundColor = UIColor.white
+        view.backgroundColor = UIColor(named: "WhiteDay")
 
         setupHeader()
         setupContainer()
@@ -49,7 +50,7 @@ final class ScheduleViewController: UIViewController {
 
     private func setupHeader() {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.text = "Расписание"
+        titleLabel.text = NSLocalizedString("schedule.title", comment: "Расписание")
         titleLabel.font = UIFont(name: "SFPro-Medium", size: 16) ?? UIFont.systemFont(ofSize: 16, weight: .medium)
         titleLabel.textColor = UIColor(named: "BlackDay")
         titleLabel.textAlignment = .center
@@ -58,7 +59,7 @@ final class ScheduleViewController: UIViewController {
         paragraphStyle.lineHeightMultiple = 22.0 / 16.0
         paragraphStyle.alignment = .center
         let attributedString = NSAttributedString(
-            string: "Расписание",
+            string: NSLocalizedString("schedule.title", comment: "Расписание"),
             attributes: [
                 .paragraphStyle: paragraphStyle,
                 .font: titleLabel.font ?? UIFont.systemFont(ofSize: 16, weight: .medium),
@@ -77,7 +78,7 @@ final class ScheduleViewController: UIViewController {
 
     private func setupContainer() {
         containerView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.backgroundColor = UIColor(red: 0.90, green: 0.91, blue: 0.92, alpha: 0.30)
+        containerView.backgroundColor = UIColor(named: "BackgroundDay")
         containerView.layer.cornerRadius = 16
         view.addSubview(containerView)
 
@@ -107,10 +108,10 @@ final class ScheduleViewController: UIViewController {
 
     private func setupDoneButton() {
         doneButton.translatesAutoresizingMaskIntoConstraints = false
-        doneButton.setTitle("Готово", for: .normal)
-        doneButton.setTitleColor(UIColor.white, for: .normal)
+        doneButton.setTitle(NSLocalizedString("button.done", comment: "Готово"), for: .normal)
+        doneButton.setTitleColor(UIColor(named: "Whitenight"), for: .normal)
         doneButton.titleLabel?.font = UIFont(name: "SFPro-Regular", size: 16) ?? UIFont.systemFont(ofSize: 16, weight: .regular)
-        doneButton.backgroundColor = UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1.0)
+        doneButton.backgroundColor = UIColor(named: "Gray")
         doneButton.layer.cornerRadius = 16
         doneButton.contentEdgeInsets = UIEdgeInsets(top: 19, left: 32, bottom: 19, right: 32)
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
@@ -141,7 +142,7 @@ extension ScheduleViewController: UITableViewDataSource {
 
         cell.textLabel?.text = daysOfWeek[indexPath.row]
         cell.textLabel?.font = UIFont(name: "SFPro-Regular", size: 17) ?? UIFont.systemFont(ofSize: 17, weight: .regular)
-        cell.textLabel?.textColor = UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1.0)
+        cell.textLabel?.textColor = UIColor(named: "BlackDay")
         cell.backgroundColor = UIColor.clear
         cell.selectionStyle = .none
 
@@ -152,7 +153,7 @@ extension ScheduleViewController: UITableViewDataSource {
             attributes: [
                 .paragraphStyle: paragraphStyle,
                 .font: cell.textLabel?.font ?? UIFont.systemFont(ofSize: 17),
-                .foregroundColor: UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1.0)
+                .foregroundColor: UIColor(named: "BlackDay") ?? UIColor.black
             ]
         )
         cell.textLabel?.attributedText = attributedString
@@ -200,6 +201,25 @@ extension ScheduleViewController {
             selectedDays.insert(dayIndex)
         } else {
             selectedDays.remove(dayIndex)
+        }
+
+        // Обновляем состояние кнопки "Готово"
+        updateDoneButtonState()
+    }
+
+    private func updateDoneButtonState() {
+        let hasSelectedDays = !selectedDays.isEmpty
+
+        if hasSelectedDays {
+            // Активная кнопка - черная
+            doneButton.backgroundColor = UIColor(named: "BlackDay")
+            doneButton.setTitleColor(UIColor(named: "Whitenight"), for: .normal)
+            doneButton.isEnabled = true
+        } else {
+            // Неактивная кнопка - серая
+            doneButton.backgroundColor = UIColor(named: "Gray")
+            doneButton.setTitleColor(UIColor(named: "Whitenight"), for: .normal)
+            doneButton.isEnabled = false
         }
     }
 }

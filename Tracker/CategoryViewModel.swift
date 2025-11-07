@@ -64,6 +64,7 @@ final class CategoryViewModel: CategoryViewModelProtocol {
 
     func createCategory(title: String) {
         let newCategory = categoryStore.createCategory(title: title)
+        AnalyticsManager.shared.trackCategoryCreated(categoryName: title)
         onCategoryCreated?(newCategory)
     }
 
